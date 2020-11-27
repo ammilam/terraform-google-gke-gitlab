@@ -32,6 +32,10 @@ variable "gke_version" {
   default     = "1.16"
 }
 
+variable "cluster_name" {
+  type        = string
+}
+   
 variable "gke_machine_type" {
   description = "Machine type used for the node-pool"
   default     = "n1-standard-4"
