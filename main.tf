@@ -366,15 +366,15 @@ resource "time_sleep" "sleep_for_cluster_fix_helm_6361" {
 }
 
 resource "helm_release" "gitlab" {
-  name         = "gitlab-${random_id.suffix.hex}"
-  repository   = "https://charts.gitlab.io"
-  chart        = "gitlab"
-  version      = var.helm_chart_version
-  wait         = false
-  timeout      = 1000
-  replace      = true
-  force_update = true
-  values       = [data.template_file.helm_values.rendered]
+  name              = "gitlab-${random_id.suffix.hex}"
+  repository        = "https://charts.gitlab.io"
+  chart             = "gitlab"
+  version           = var.helm_chart_version
+  wait              = false
+  timeout           = 1000
+  replace           = true
+  dependency_update = true
+  values            = [data.template_file.helm_values.rendered]
 
   depends_on = [
     google_redis_instance.gitlab,
