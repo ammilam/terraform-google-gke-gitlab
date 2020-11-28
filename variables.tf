@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+variable "values_location" {
+  description = "Location of gitlab helm chart values file"
+  default = "./values.yaml.tpl"
+}     
 variable "project_id" {
   description = "GCP Project to deploy resources"
 }
