@@ -371,7 +371,7 @@ resource "helm_release" "gitlab" {
   chart      = "gitlab"
   version    = var.helm_chart_version
   timeout    = 1200
-
+  replace    = "true"
   values = [data.template_file.helm_values.rendered]
 
   depends_on = [
