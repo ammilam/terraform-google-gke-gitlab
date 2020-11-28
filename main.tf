@@ -291,7 +291,7 @@ resource "kubernetes_secret" "gitlab_pg" {
 
 resource "kubernetes_secret" "gitlab_rails_storage" {
   metadata {
-    name = "gitlab-rails-storage-${random_id.suffix.hex}"
+    name = "gitlab-rails-storage"
   }
 
   data = {
@@ -306,7 +306,7 @@ EOT
 
 resource "kubernetes_secret" "gitlab_registry_storage" {
   metadata {
-    name = "gitlab-registry-storage-${random_id.suffix.hex}"
+    name = "gitlab-registry-storage"
   }
 
   data = {
