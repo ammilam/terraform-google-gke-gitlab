@@ -81,7 +81,7 @@ module "project_services" {
 // GCS Service Account
 resource "google_service_account" "gitlab_gcs" {
   project      = var.project_id
-  account_id   = "gitlab-gcs-${random_id.suffix_2.hex}"
+  account_id   = "gitlab-gcs-${random_id.suffix[0].hex}"
   display_name = "GitLab Cloud Storage"
 }
 
@@ -97,13 +97,13 @@ resource "google_project_iam_member" "project" {
 
 // Networking
 resource "google_compute_network" "gitlab" {
-  name                    = "gitlab-${random_id.suffix_2.hex}"
+  name                    = "gitlab-${random_id.suffix[0].hex}"
   project                 = module.project_services.project_id
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "gitlab-${random_id.suffix_2.hex}"
+  name          = "gitlab-${random_id.suffix[0].hex}"
   ip_cidr_range = var.gitlab_nodes_subnet_cidr
   region        = var.region
   network       = google_compute_network.gitlab.self_link
@@ -120,7 +120,7 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_compute_address" "gitlab" {
-  name         = "gitlab-${random_id.suffix_2.hex}"
+  name         = "gitlab-${random_id.suffix[0].hex}"
   region       = var.region
   address_type = "EXTERNAL"
   description  = "Gitlab Ingress IP"
@@ -132,7 +132,7 @@ resource "google_compute_address" "gitlab" {
 resource "google_compute_global_address" "gitlab_sql" {
   provider      = google-beta
   project       = var.project_id
-  name          = "gitlab-sql-${random_id.suffix_2.hex}"
+  name          = "gitlab-sql-${random_id.suffix[0].hex}"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   network       = google_compute_network.gitlab.self_link
@@ -150,7 +150,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 
 resource "google_sql_database_instance" "gitlab_db" {
   depends_on       = [google_service_networking_connection.private_vpc_connection]
-  name             = "${local.gitlab_db_name}-${random_id.suffix_2.hex}"
+  name             = "${local.gitlab_db_name}-${random_id.suffix[0].hex}"
   region           = var.region
   database_version = "POSTGRES_11"
 
@@ -185,7 +185,7 @@ resource "google_sql_user" "gitlab" {
 
 // Redis
 resource "google_redis_instance" "gitlab" {
-  name               = "gitlab"
+  name               = "gitlab-${random_id.suffix[0].hex}"
   tier               = "STANDARD_HA"
   memory_size_gb     = 5
   region             = var.region
@@ -193,42 +193,42 @@ resource "google_redis_instance" "gitlab" {
 
   depends_on = [module.project_services.project_id]
 
-  display_name = "GitLab Redis"
+  display_name = "GitLab Redis ${random_id.suffix[0].hex}"
 }
 
 // Cloud Storage
 resource "google_storage_bucket" "gitlab-backups" {
-  name     = "${var.project_id}-gitlab-backups"
+  name     = "${var.project_id}-gitlab-backups-${random_id.suffix[0].hex}"
   location = var.region
 }
 
 resource "google_storage_bucket" "gitlab-uploads" {
-  name     = "${var.project_id}-gitlab-uploads"
+  name     = "${var.project_id}-gitlab-uploads-${random_id.suffix[0].hex}"
   location = var.region
 }
 
 resource "google_storage_bucket" "gitlab-artifacts" {
-  name     = "${var.project_id}-gitlab-artifacts"
+  name     = "${var.project_id}-gitlab-artifacts-${random_id.suffix[0].hex}"
   location = var.region
 }
 
 resource "google_storage_bucket" "git-lfs" {
-  name     = "${var.project_id}-git-lfs"
+  name     = "${var.project_id}-git-lfs-${random_id.suffix[0].hex}"
   location = var.region
 }
 
 resource "google_storage_bucket" "gitlab-packages" {
-  name     = "${var.project_id}-gitlab-packages"
+  name     = "${var.project_id}-gitlab-packages-${random_id.suffix[0].hex}"
   location = var.region
 }
 
 resource "google_storage_bucket" "gitlab-registry" {
-  name     = "${var.project_id}-registry"
+  name     = "${var.project_id}-registry-${random_id.suffix[0].hex}"
   location = var.region
 }
 
 resource "google_storage_bucket" "gitlab-pseudo" {
-  name     = "${var.project_id}-pseudo"
+  name     = "${var.project_id}-pseudo-${random_id.suffix[0].hex}"
   location = var.region
 }
 
@@ -297,7 +297,7 @@ resource "kubernetes_secret" "gitlab_pg" {
 
 resource "kubernetes_secret" "gitlab_rails_storage" {
   metadata {
-    name = "gitlab-rails-storage"
+    name = "gitlab-rails-storage-${random_id.suffix[0].hex}"
   }
 
   data = {
@@ -312,7 +312,7 @@ EOT
 
 resource "kubernetes_secret" "gitlab_registry_storage" {
   metadata {
-    name = "gitlab-registry-storage"
+    name = "gitlab-registry-storage-${random_id.suffix[0].hex}"
   }
 
   data = {
@@ -372,7 +372,7 @@ resource "time_sleep" "sleep_for_cluster_fix_helm_6361" {
 }
 
 resource "helm_release" "gitlab" {
-  name       = "gitlab"
+  name       = "gitlab-${random_id.suffix[0].hex}"
   repository = "https://charts.gitlab.io"
   chart      = "gitlab"
   version    = var.helm_chart_version
