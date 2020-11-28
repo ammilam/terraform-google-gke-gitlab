@@ -42,31 +42,31 @@ global:
 
     ## doc/charts/globals.md#lfs-artifacts-uploads-packages
     backups:
-      bucket: ${PROJECT_ID}-gitlab-backups
+      bucket: ${PROJECT_ID}-gitlab-backups-${SUFFIX}
     lfs:
-      bucket: ${PROJECT_ID}-git-lfs
+      bucket: ${PROJECT_ID}-git-lfs-${SUFFIX}
       connection:
         secret: gitlab-rails-storage
         key: connection
     artifacts:
-      bucket: ${PROJECT_ID}-gitlab-artifacts
+      bucket: ${PROJECT_ID}-gitlab-artifacts-${SUFFIX}
       connection:
         secret: gitlab-rails-storage
         key: connection
     uploads:
-      bucket: ${PROJECT_ID}-gitlab-uploads
+      bucket: ${PROJECT_ID}-gitlab-uploads-${SUFFIX}
       connection:
         secret: gitlab-rails-storage
         key: connection
     packages:
-      bucket: ${PROJECT_ID}-gitlab-packages
+      bucket: ${PROJECT_ID}-gitlab-packages-${SUFFIX}
       connection:
         secret: gitlab-rails-storage
         key: connection
 
     ## doc/charts/globals.md#pseudonymizer-settings
     pseudonymizer:
-      bucket: ${PROJECT_ID}-gitlab-pseudo
+      bucket: ${PROJECT_ID}-gitlab-pseudo-${SUFFIX}
       connection:
         secret: gitlab-rails-storage
         key: connection
