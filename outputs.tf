@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+output "suffix" {
+  value       = random_id.suffix.hex
+  }
 output "gitlab_address" {
   value       = local.gitlab_address
   description = "IP address where you can connect to your GitLab instance"
