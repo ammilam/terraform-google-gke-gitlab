@@ -261,7 +261,7 @@ module "gke" {
 
   node_pools = [
     {
-      name         = "gitlab"
+      name         = "gitlab-${random_id.suffix[0].hex}"
       autoscaling  = false
       machine_type = var.gke_machine_type
       node_count   = 1
