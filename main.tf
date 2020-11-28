@@ -147,7 +147,7 @@ resource "google_sql_database_instance" "gitlab_db" {
   name             = "${local.gitlab_db_name}-${random_id.suffix.hex}"
   region           = var.region
   database_version = "POSTGRES_11"
-
+  deletion_protection = "false"
   settings {
     tier            = "db-custom-4-15360"
     disk_autoresize = true
@@ -227,7 +227,7 @@ resource "google_storage_bucket" "gitlab-pseudo" {
 }
 
 resource "google_storage_bucket" "gitlab-runner-cache" {
-  name     = "${var.project_id}-runner-cache"
+  name     = "${var.project_id}-runner-cache-${random_id.suffix.hex}"
   location = var.region
 }
 // GKE Cluster
