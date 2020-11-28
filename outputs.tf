@@ -19,6 +19,9 @@ output "gitlab_address" {
   description = "IP address where you can connect to your GitLab instance"
 }
 
+output "chart_name" {
+  value       = helm_release.gitlab.name
+  }
 output "gitlab_url" {
   value       = "https://${local.domain}"
   description = "URL where you can access your GitLab instance"
