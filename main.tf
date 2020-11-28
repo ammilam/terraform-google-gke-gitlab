@@ -352,7 +352,7 @@ locals {
 }
 
 data "template_file" "helm_values" {
-  template = "${file("${var.values_location}")}"
+  template = "${file("${path.module}/values.yaml.tpl")}"
 
   vars = {
     DOMAIN                = local.domain
