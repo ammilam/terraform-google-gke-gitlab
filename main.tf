@@ -356,6 +356,7 @@ data "template_file" "helm_values" {
     PROJECT_ID            = var.project_id
     CERT_MANAGER_EMAIL    = var.certmanager_email
     GITLAB_RUNNER_INSTALL = var.gitlab_runner_install
+    SUFFIX                = "${random_id.suffix.hex}"
   }
 }
 
