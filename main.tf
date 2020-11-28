@@ -32,7 +32,9 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-
+resource "random_id" "suffix_2" {
+  byte_length = 2
+}
 module "gke_auth" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/auth"
   version = "~> 9.1"
@@ -79,7 +81,7 @@ module "project_services" {
 // GCS Service Account
 resource "google_service_account" "gitlab_gcs" {
   project      = var.project_id
-  account_id   = "gitlab-gcs"
+  account_id   = "gitlab-gcs-${random_id.suffix_2.hex}"
   display_name = "GitLab Cloud Storage"
 }
 
@@ -95,13 +97,13 @@ resource "google_project_iam_member" "project" {
 
 // Networking
 resource "google_compute_network" "gitlab" {
-  name                    = "gitlab"
+  name                    = "gitlab-${random_id.suffix_2.hex}"
   project                 = module.project_services.project_id
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "gitlab"
+  name          = "gitlab-${random_id.suffix_2.hex}"
   ip_cidr_range = var.gitlab_nodes_subnet_cidr
   region        = var.region
   network       = google_compute_network.gitlab.self_link
@@ -118,7 +120,7 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_compute_address" "gitlab" {
-  name         = "gitlab"
+  name         = "gitlab-${random_id.suffix_2.hex}"
   region       = var.region
   address_type = "EXTERNAL"
   description  = "Gitlab Ingress IP"
@@ -130,7 +132,7 @@ resource "google_compute_address" "gitlab" {
 resource "google_compute_global_address" "gitlab_sql" {
   provider      = google-beta
   project       = var.project_id
-  name          = "gitlab-sql"
+  name          = "gitlab-sql-${random_id.suffix_2.hex}"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   network       = google_compute_network.gitlab.self_link
@@ -148,7 +150,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 
 resource "google_sql_database_instance" "gitlab_db" {
   depends_on       = [google_service_networking_connection.private_vpc_connection]
-  name             = local.gitlab_db_name
+  name             = "${local.gitlab_db_name}-${random_id.suffix_2.hex}"
   region           = var.region
   database_version = "POSTGRES_11"
 
@@ -364,8 +366,8 @@ data "template_file" "helm_values" {
 }
 
 resource "time_sleep" "sleep_for_cluster_fix_helm_6361" {
-  create_duration  = "180s"
-  destroy_duration = "180s"
+  create_duration  = "200s"
+  destroy_duration = "200s"
   depends_on       = [module.gke.endpoint, google_sql_database.gitlabhq_production]
 }
 
