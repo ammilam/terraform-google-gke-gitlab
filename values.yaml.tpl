@@ -2,7 +2,7 @@
 global:
   edition: ce
   hosts:
-    domain: ${DOMAIN}
+    domain: ""
     https: true
     gitlab: {}
     externalIP: ${INGRESS_IP}
@@ -105,7 +105,7 @@ gitlab-runner:
     locked: false
     cache:
       cacheType: gcs
-      gcsBucketName: ${PROJECT_ID}-runner-cache
+      gcsBucketName: ${PROJECT_ID}-runner-cache-${SUFFIX}
       secretName: google-application-credentials
       cacheShared: true
 
