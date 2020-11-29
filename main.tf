@@ -1,13 +1,13 @@
 provider "google" {
   project = var.project_id
 }
-
+.
 provider "google-beta" {
   project = var.project_id
 }
 
 locals {
-  gitlab_db_name = "${var.gitlab_db_name}-${random_id.suffix}"
+  gitlab_db_name = "${var.gitlab_db_name}-${random_id.suffix.hex}"
 }
 
 
