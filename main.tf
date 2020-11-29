@@ -1,34 +1,22 @@
-/**
- * Copyright 2018 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 provider "google" {
   project = var.project_id
 }
 
-provider "google-beta" {}
+provider "google-beta" {
+  project = var.project_id
+}
 
 locals {
-  gitlab_db_name = var.gitlab_db_random_prefix ? "${var.gitlab_db_name}-${random_id.suffix.hex}" : var.gitlab_db_name
+  gitlab_db_name = var.gitlab_db_random_prefix ? "${var.gitlab_db_name}-${random_id.suffix[0].hex}" : var.gitlab_db_name
 }
-
-
 
 resource "random_id" "suffix" {
-  byte_length = 2
+  count = var.gitlab_db_random_prefix ? 1 : 0
+
+  byte_length = 4
 }
+
+
 module "gke_auth" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/auth"
   version = "~> 9.1"
@@ -75,7 +63,7 @@ module "project_services" {
 // GCS Service Account
 resource "google_service_account" "gitlab_gcs" {
   project      = var.project_id
-  account_id   = "gitlab-gcs-${random_id.suffix.hex}"
+  account_id   = "gitlab-gcs"
   display_name = "GitLab Cloud Storage"
 }
 
@@ -91,7 +79,7 @@ resource "google_project_iam_member" "project" {
 
 // Networking
 resource "google_compute_network" "gitlab" {
-  name                    = "gitlab-${random_id.suffix.hex}"
+  name                    = "gitlab"
   project                 = module.project_services.project_id
   auto_create_subnetworks = false
 }
@@ -126,7 +114,7 @@ resource "google_compute_address" "gitlab" {
 resource "google_compute_global_address" "gitlab_sql" {
   provider      = google-beta
   project       = var.project_id
-  name          = "gitlab-sql-${random_id.suffix.hex}"
+  name          = "gitlab-sql"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   network       = google_compute_network.gitlab.self_link
@@ -144,10 +132,10 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 
 resource "google_sql_database_instance" "gitlab_db" {
   depends_on       = [google_service_networking_connection.private_vpc_connection]
-  name             = "${local.gitlab_db_name}-${random_id.suffix.hex}"
+  name             = local.gitlab_db_name
   region           = var.region
   database_version = "POSTGRES_11"
-  deletion_protection = "false"
+
   settings {
     tier            = "db-custom-4-15360"
     disk_autoresize = true
@@ -187,7 +175,7 @@ resource "google_redis_instance" "gitlab" {
 
   depends_on = [module.project_services.project_id]
 
-  display_name = "GitLab Redis ${random_id.suffix.hex}"
+  display_name = "GitLab Redis"
 }
 
 // Cloud Storage
@@ -238,7 +226,7 @@ module "gke" {
   # Create an implicit dependency on service activation
   project_id = module.project_services.project_id
 
-  name               = var.cluster_name
+  name               = "gitlab"
   region             = var.region
   regional           = true
   kubernetes_version = var.gke_version
@@ -342,11 +330,11 @@ data "google_compute_address" "gitlab" {
 
 locals {
   gitlab_address = var.gitlab_address_name == "" ? google_compute_address.gitlab.0.address : data.google_compute_address.gitlab.0.address
-  domain         = var.domain != "" ? var.domain : "${local.gitlab_address}"
+  domain         = var.domain != "" ? var.domain : "${local.gitlab_address}.xip.io"
 }
 
 data "template_file" "helm_values" {
-  template = "${file("./values.yaml.tpl")}"
+  template = "${file("${path.module}/values.yaml.tpl")}"
 
   vars = {
     DOMAIN                = local.domain
@@ -356,26 +344,23 @@ data "template_file" "helm_values" {
     PROJECT_ID            = var.project_id
     CERT_MANAGER_EMAIL    = var.certmanager_email
     GITLAB_RUNNER_INSTALL = var.gitlab_runner_install
-    SUFFIX                = "${random_id.suffix.hex}"
   }
 }
 
 resource "time_sleep" "sleep_for_cluster_fix_helm_6361" {
-  create_duration  = "200s"
-  destroy_duration = "200s"
+  create_duration  = "180s"
+  destroy_duration = "180s"
   depends_on       = [module.gke.endpoint, google_sql_database.gitlabhq_production]
 }
 
 resource "helm_release" "gitlab" {
-  name              = "gitlab"
-  repository        = "https://charts.gitlab.io"
-  chart             = "gitlab"
-  version           = var.helm_chart_version
-  wait              = false
-  timeout           = 1000
-  replace           = true
-  dependency_update = true
-  values            = [data.template_file.helm_values.rendered]
+  name       = "gitlab"
+  repository = "https://charts.gitlab.io"
+  chart      = "gitlab"
+  version    = var.helm_chart_version
+  timeout    = 1200
+
+  values = [data.template_file.helm_values.rendered]
 
   depends_on = [
     google_redis_instance.gitlab,
