@@ -7,14 +7,9 @@ provider "google-beta" {
 }
 
 locals {
-  gitlab_db_name = var.gitlab_db_random_prefix ? "${var.gitlab_db_name}-${random_id.suffix[0].hex}" : var.gitlab_db_name
+  gitlab_db_name = "${var.gitlab_db_name}-${random_id.suffix}"
 }
 
-resource "random_id" "suffix" {
-  count = var.gitlab_db_random_prefix ? 1 : 0
-
-  byte_length = 4
-}
 
 
 module "gke_auth" {
@@ -35,6 +30,9 @@ provider "helm" {
   }
 }
 
+resource "random_id" "suffix" {
+  byte_length = 2
+}
 provider "kubernetes" {
   load_config_file = false
 
