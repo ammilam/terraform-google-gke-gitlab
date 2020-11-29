@@ -114,7 +114,7 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_compute_address" "gitlab" {
-  name         = "gitlab-${random_id.suffix.hex}"
+  name         = "gitlab"
   region       = var.region
   address_type = "EXTERNAL"
   description  = "Gitlab Ingress IP"
