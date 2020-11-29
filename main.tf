@@ -179,7 +179,7 @@ resource "google_sql_user" "gitlab" {
 
 // Redis
 resource "google_redis_instance" "gitlab" {
-  name               = "gitlab-${random_id.suffix.hex}"
+  name               = "gitlab"
   tier               = "STANDARD_HA"
   memory_size_gb     = 5
   region             = var.region
