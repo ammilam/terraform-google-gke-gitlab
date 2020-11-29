@@ -145,13 +145,13 @@ resource "google_sql_database_instance" "gitlab_db" {
       private_network = google_compute_network.gitlab.self_link
     }
   }
-    deletion_protection = fal
+    deletion_protection = "false"
   
 }
 
 resource "google_sql_database" "gitlabhq_production" {
   name                = "gitlabhq_production"
-  deletion_protection = false
+  deletion_protection = "false"
   instance            = google_sql_database_instance.gitlab_db.name
   depends_on          = [google_sql_user.gitlab]
 }
