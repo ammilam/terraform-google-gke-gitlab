@@ -134,7 +134,6 @@ resource "google_sql_database_instance" "gitlab_db" {
   depends_on          = [google_service_networking_connection.private_vpc_connection]
   name                = local.gitlab_db_name
   region              = var.region
-  deletion_protection = false
   database_version    = "POSTGRES_11"
 
   settings {
@@ -146,6 +145,8 @@ resource "google_sql_database_instance" "gitlab_db" {
       private_network = google_compute_network.gitlab.self_link
     }
   }
+    deletion_protection = fal
+  
 }
 
 resource "google_sql_database" "gitlabhq_production" {
