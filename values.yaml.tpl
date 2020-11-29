@@ -2,7 +2,7 @@
 global:
   edition: ce
   hosts:
-    domain: ""
+    domain: ${DOMAIN}
     https: true
     gitlab: {}
     externalIP: ${INGRESS_IP}
@@ -42,31 +42,31 @@ global:
 
     ## doc/charts/globals.md#lfs-artifacts-uploads-packages
     backups:
-      bucket: ${PROJECT_ID}-gitlab-backups-${SUFFIX}
+      bucket: ${PROJECT_ID}-gitlab-backups
     lfs:
-      bucket: ${PROJECT_ID}-git-lfs-${SUFFIX}
+      bucket: ${PROJECT_ID}-git-lfs
       connection:
         secret: gitlab-rails-storage
         key: connection
     artifacts:
-      bucket: ${PROJECT_ID}-gitlab-artifacts-${SUFFIX}
+      bucket: ${PROJECT_ID}-gitlab-artifacts
       connection:
         secret: gitlab-rails-storage
         key: connection
     uploads:
-      bucket: ${PROJECT_ID}-gitlab-uploads-${SUFFIX}
+      bucket: ${PROJECT_ID}-gitlab-uploads
       connection:
         secret: gitlab-rails-storage
         key: connection
     packages:
-      bucket: ${PROJECT_ID}-gitlab-packages-${SUFFIX}
+      bucket: ${PROJECT_ID}-gitlab-packages
       connection:
         secret: gitlab-rails-storage
         key: connection
 
     ## doc/charts/globals.md#pseudonymizer-settings
     pseudonymizer:
-      bucket: ${PROJECT_ID}-gitlab-pseudo-${SUFFIX}
+      bucket: ${PROJECT_ID}-gitlab-pseudo
       connection:
         secret: gitlab-rails-storage
         key: connection
@@ -105,7 +105,7 @@ gitlab-runner:
     locked: false
     cache:
       cacheType: gcs
-      gcsBucketName: ${PROJECT_ID}-runner-cache-${SUFFIX}
+      gcsBucketName: ${PROJECT_ID}-runner-cache
       secretName: google-application-credentials
       cacheShared: true
 
