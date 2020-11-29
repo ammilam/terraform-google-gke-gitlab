@@ -236,7 +236,7 @@ module "gke" {
   # Create an implicit dependency on service activation
   project_id = module.project_services.project_id
 
-  name               = "gitlab"
+  name               = var.cluster_name
   region             = var.region
   regional           = true
   kubernetes_version = var.gke_version
