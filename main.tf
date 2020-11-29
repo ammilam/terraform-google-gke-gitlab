@@ -342,7 +342,7 @@ data "google_compute_address" "gitlab" {
 
 locals {
   gitlab_address = var.gitlab_address_name == "" ? google_compute_address.gitlab.0.address : data.google_compute_address.gitlab.0.address
-  domain         = var.domain != "" ? var.domain : "${local.gitlab_address}.xip.io"
+  domain         = var.domain != "" ? var.domain : "${local.gitlab_address}"
 }
 
 data "template_file" "helm_values" {
